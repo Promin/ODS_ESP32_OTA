@@ -1,72 +1,69 @@
 # CloudOTA
 
-> CloudOTA currently only targets ESP32. It could be extended to work with ESP8266 with some modification.
+> CloudOTA наразі націлена лише на ESP32. Його можна розширити для роботи з ESP8266 з деякими модифікаціями.
 
-CloudOTA allows user to add ESP32 OTA capability to its ESP32 Arduino project using github repository (or any VPS) as the OTA server. CloudOTA abtracts away all the boiler plate code into the `CloudOTA.h` library, and making it easier for user to add OTA capability by adding only a few line of codes, usually before the end of `setup()` function, and setting up some configuration settings in the `CloudOTA.h`.
+CloudOTA дозволяє користувачеві додавати можливості ESP32 OTA до свого проекту ESP32 Arduino, використовуючи репозиторій github (або будь-який VPS) як сервер OTA. CloudOTA вилучає весь базовий код у `CloudOTA. h` бібліотеку та спрощення для користувача додавання можливостей OTA шляхом додавання лише кількох рядків кодів, як правило, перед завершенням функції `setup()`, і налаштування деяких параметрів конфігурації в `CloudOTA. h`.
 
-CloudOTA is based on ESP32 [Update](https://github.com/espressif/arduino-esp32/tree/master/libraries/Update) Library, it allows user to upload the firmware binary file and specific what is the latest firmware firmware version in a `fw_version.txt` file. This allows IoT devices deployed out in the field to make a request to a github repository(or any VPS) to check the latest firmware when the IoT device come in life from deep sleep or on a reset cycle.
+CloudOTA базується на бібліотеці [Оновлення] ESP32 (https://github. com/espressif/arduino-esp32/tree/master/libraries/Update), вона дозволяє користувачеві завантажувати двійковий файл мікропрограми та вказувати, яка остання мікропрограма версія в `fw_version. txt` файл. Це дозволяє пристроям IoT, розгорнутим у польових умовах, надсилати запит до репозиторію github (або будь-якого VPS) для перевірки останнього мікропрограмного забезпечення, коли пристрій IoT виходить із глибокого сну або циклу скидання.
 
-## When should I use CloudOTA
+## Коли мені використовувати CloudOTA
 
-ESP32-Arduino Core provides a great library [ArduinoOTA](https://github.com/espressif/arduino-esp32/tree/master/libraries/ArduinoOTA) for providing an easy-to-use, host-initiated OTA functionality for devices that are constantly on and within a local network. However, it is not really suitable for ESP32 IoT devices deployed in the field where the devices remain in deepsleep most of the time and only wake-up a few times a day. Those devices need to be able to check the latest firmware version via a public-facing server and conduct an OTA for self-update (i.e. client-initiated). CloudOTA does not replace ArduinoOTA, the two serve different purpose.
+ESP32-Arduino Core надає чудову бібліотеку [ArduinoOTA](https://github. com/espressif/arduino-esp32/tree/master/libraries/ArduinoOTA), яка забезпечує просту у використанні функціональність OTA, ініційовану хостом, для пристроїв які постійно знаходяться в локальній мережі. Однак він не дуже підходить для пристроїв ESP32 IoT, розгорнутих у полі, де пристрої перебувають у режимі глибокого сну більшу частину часу та прокидаються лише кілька разів на день. Ці пристрої повинні мати можливість перевіряти останню версію мікропрограми через загальнодоступний сервер і проводити OTA для самостійного оновлення (тобто ініційованого клієнтом). CloudOTA не замінює ArduinoOTA, вони служать різним цілям.
 
-## How to use it
+## Як ним користуватися
 
-The `CloudOTA.h` abstracts all the details away and only exposes two two functions where a user can easily added into its sketch to enable the OTA update functionality via a cloud server (e.g. via github repository or any VPS). The `CloudOTA.ino` provides a simple demonstration and the boiler plate code on how to use the CloudOTA.
+`CloudOTA. h` абстрагує всі деталі та надає лише дві дві функції, які користувач може легко додати до свого ескізу, щоб увімкнути функцію оновлення OTA через хмарний сервер (наприклад, через репозиторій github або будь-який VPS). `CloudOTA. ino` надає просту демонстрацію та типовий код використання CloudOTA.
 
-### Add CloudOTA capability to your project
+### Додайте можливість CloudOTA до свого проекту
 
-1. Copy the `CloudOTA.h` into your project directory or repository;
-2. Modify the following parameters in the `CloudOTA.h` file based on your server/github environment;
+1. Скопіюйте файл `CloudOTA. h` у ваш каталог проекту або репозиторій;
+2. Змініть наступні параметри в `CloudOTA. файл h` на основі середовища вашого сервера/github;
 
 ```
-String currentFwVersion{"2.0.0"};
-String host = "raw.githubusercontent.com";
+Рядок currentFwVersion{"2.0.0"};
+String host = "raw. githubusercontent. com";
 const int hostPort = 443;
-String fwVersionURL = "/e-tinkers/CloudOTA/master/fw_version.txt";
-String fwBinaryURL = "/e-tinkers/CloudOTA/master/firmware";
+Рядок fwVersionURL = "/e-tinkers/CloudOTA/master/fw_version. txt";
+Рядок fwBinaryURL = "/e-tinkers/CloudOTA/master/firmware";
 ```
 
-The `currentFwVersion` value should be the value of your current firmware version. In the example, `2.0.0` is the current firmware version of the example `CloudOTA.ino`.
+Значення `currentFwVersion` має бути значенням поточної версії мікропрограми. У прикладі «2.0.0» є поточною версією мікропрограми прикладу «CloudOTA». іно`.
 
-The rest of the parameters are related to your server setting. The default settings are assuming of using github repository as the OTA firmware hosting server. Do remember to replace the `e-tinkers` with your github username. 
+Решта параметрів пов’язані з налаштуваннями вашого сервера. Параметри за замовчуванням передбачають використання репозиторію github як сервера розміщення прошивки OTA. Не забудьте замінити `e-tinkers` своїм іменем користувача github.
 
-The `fwVersionURL` specified a text file which contains the latest firmware version number.
+`fwVersionURL` визначає текстовий файл, який містить номер останньої версії мікропрограми.
 
-The `fwBinaryURL` specified the *prefix* of the firmware binary file.
+`fwBinaryURL` вказав *префікс* двійкового файлу мікропрограми.
 
-3. Add the three lines of code below into your project sketch. Don't forget to add `#include "CloudOTA.h"` header in your sketch as well. This will enable your sketch with the CloudOTA capability whenever the sketch wake up from deepsleep or have a hardware/software reset.
+3. Додайте три рядки коду нижче до ескізу проекту. Не забудьте також додати заголовок `#include "CloudOTA. h"` у свій ескіз. Це забезпечить ваш ескіз можливістю CloudOTA кожного разу, коли ескіз виходить із режиму глибокого сну або скидається апаратне/програмне забезпечення.
 
 ```
-#include "CloudOTA.h"
+#include "CloudOTA. h"
 
 void setup() {
-    // your normal setup code here
+    // ваш звичайний код налаштування тут
 
-    // Add the Cloud OTA functionality
+    // Додайте функціональність Cloud OTA
     if (newFirmwareAvailable()) {
-        updateFirmware();
+        оновлення прошивки();
     }
 }
 ```
 
-4. Create `fw_version.txt` in the project directory, the content of the `fw_version.txt` should match the value used in `currentFwVersion` parameter in `CloudOTA.h`.
+4. Створіть `fw_version. txt` у каталозі проекту, вміст `fw_version. txt` має відповідати значенню, яке використовується в параметрі `currentFwVersion` в `CloudOTA". h`.
 
-5. flash the ESP32 device with the latest OTA-enabled code. That's all! The `CloudOTA.ino` consists of a simple boiler plate sketch that has a firmware version `2.0.0`. It will check for latest firmware version from the `fw_version.txt` on next reset or wakeup from a deepsleep.
+5. Прошити пристрій ESP32 за допомогою останнього коду з підтримкою OTA. Це все! `CloudOTA. ino` складається з простого ескізу бойлера, який має версію мікропрограми 2.0.0. Він перевірить наявність останньої версії мікропрограми з `fw_version. txt` під час наступного скидання або пробудження з глибокого сну.
 
-### Update the firmware
+### Оновіть мікропрограму
 
-1. If you made the modification of your project in the future (for example, add the LED blinking code shown in the example).
+1. Якщо ви внесли зміни до свого проекту в майбутньому (наприклад, додайте код блимання світлодіода, показаний у прикладі).
 
-2. Change your `currentFwVersion` to "2.0.1" in `CloadOTA.h`. 
+2. Змініть свою `currentFwVersion` на "2.0.1" у `CloadOTA. h`.
 
-3. Click on "Sketch -> Export Compiled Binary" from Arduino IDE to export the latest sketch;
+3. Натисніть «Sketch -> Export Compiled Binary» з Arduino IDE, щоб експортувати останній ескіз;
 
-4. Go to your sketch directory and there should be a binary file named based on your sketch file name as `<sketch_file_name>.ino.esp32.bin`. Rename it to `firmware2.0.1.bin` where the `firmware` should be the prefix name used in your configration parameter `fwBinaryURL` mentioned in `CloudOTA.h`, and the `2.0.1` should be the current version number specified in the `currentFwVersion` in `CloudOTA.h`.
+4. Перейдіть до каталогу вашого ескізу, і там має бути двійковий файл, названий відповідно до імені вашого файлу ескізу `<назва_файлу_ескізу>. я не. esp32. bin`. Перейменуйте його на `firmware2.0.1. bin`, де `firmware` має бути назвою префікса, який використовується у вашому параметрі конфігурації `fwBinaryURL`, згаданому в `CloudOTA. h`, а `2.0.1` має бути поточним номером версії, указаним у `currentFwVersion` в `CloudOTA". h`.
 
-3. Update the `fw_version.txt` accordingly to `2.0.1`. 
+3. Оновіть `fw_version. txt` відповідно до `2.0.1`.
 
-4. Do a git push to push the latest project (and the `firmware.2.0.1.bin`) to the github. Your IoT device will automatically updated on the next reset or wake-up from deepsleep, and you should see the LED blinking with the new firmware.
-
-
-
+4. Виконайте git push, щоб надіслати останній проект (і `firmware.2.0.1. bin`) на github. Ваш IoT-пристрій автоматично оновиться під час наступного скидання або виходу з режиму глибокого сну, і ви побачите, що світлодіодний індикатор блимає з новою мікропрограмою.
